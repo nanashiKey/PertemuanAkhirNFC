@@ -1,5 +1,7 @@
 package com.irfandev.project.simplemarket.fragments;
 
+import android.app.Activity;
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -11,7 +13,9 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
+import com.irfandev.project.simplemarket.LoginActivity;
 import com.irfandev.project.simplemarket.R;
+import com.irfandev.project.simplemarket.helpers.PrefsHelper;
 
 /**
  * created by Irfan Assidiq
@@ -27,5 +31,20 @@ public class ProfileFragment extends Fragment {
         tvUsername = view.findViewById(R.id.tvUsername);
         btnLogout = view.findViewById(R.id.btnLogout);
         return view;
+    }
+
+    @Override
+    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+        tvUsername.setText(PrefsHelper.sharedInstance(getActivity().getApplicationContext()).getUsername());
+        btnLogout.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                startActivity(new Intent(getActivity().getApplicationContext(), LoginActivity.class));
+                PrefsHelper.sharedInstance(getActivity().getApplicationContext()).setStatusLogin(false);
+                PrefsHelper.sharedInstance(getActivity().getApplicationContext()).setUsername("");
+                getActivity().finish();
+            }
+        });
     }
 }

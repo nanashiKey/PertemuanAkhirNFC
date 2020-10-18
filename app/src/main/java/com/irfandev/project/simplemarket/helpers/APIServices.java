@@ -1,11 +1,13 @@
 package com.irfandev.project.simplemarket.helpers;
 
+import com.irfandev.project.simplemarket.models.BarangResponse;
 import com.irfandev.project.simplemarket.models.DefaultResponse;
 import com.irfandev.project.simplemarket.models.UsersResponse;
 
 import retrofit2.Call;
 import retrofit2.http.Field;
 import retrofit2.http.FormUrlEncoded;
+import retrofit2.http.GET;
 import retrofit2.http.POST;
 
 /**
@@ -26,4 +28,8 @@ public interface APIServices {
                         @Field("email") String email,
                         @Field("password") String password,
                         @Field("point") int point);
+
+
+    @GET("getallbarang")
+    public Call<BarangResponse> getAllBarang();
 }

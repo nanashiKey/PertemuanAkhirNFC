@@ -30,7 +30,7 @@ import retrofit2.converter.gson.GsonConverterFactory;
  **/
 public class LoginActivity extends AppCompatActivity {
     Button btnLogin;
-    TextInputEditText etUsername;
+    TextInputEditText etUsername, etPassword;
     TextView tvRegis;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -38,6 +38,7 @@ public class LoginActivity extends AppCompatActivity {
         setContentView(R.layout.activity_login);
         btnLogin = findViewById(R.id.btnLogin);
         etUsername = findViewById(R.id.etUsername);
+        etPassword = findViewById(R.id.etPassword);
         tvRegis = findViewById(R.id.tvRegister);
         tvRegis.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -48,7 +49,10 @@ public class LoginActivity extends AppCompatActivity {
         btnLogin.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-
+                String uname, pass;
+                uname = etUsername.getText().toString();
+                pass = etPassword.getText().toString();
+                doLogin(uname, pass);
             }
         });
         boolean cekLogin = PrefsHelper.sharedInstance(LoginActivity.this).getStatusLogin();
@@ -58,7 +62,7 @@ public class LoginActivity extends AppCompatActivity {
         }
     }
 
-    public void doLogin(String uname, String pass){
+    public void doLogin(final String uname, String pass){
         if(uname.equals("") && pass.equals("")){
             Toast.makeText(this, "silahkan isi kolom yang kosong", Toast.LENGTH_SHORT).show();
         }else{
@@ -71,9 +75,15 @@ public class LoginActivity extends AppCompatActivity {
                 @Override
                 public void onResponse(Call<UsersResponse> call, Response<UsersResponse> response) {
                     if(response.isSuccessful()){
-
+                        Toast.makeText(LoginActivity.this, "Login Berhasil",
+                                Toast.LENGTH_SHORT).show();
+                        PrefsHelper.sharedInstance(LoginActivity.this).setStatusLogin(true);
+                        PrefsHelper.sharedInstance(LoginActivity.this).setUsername(uname);
+                        startActivity(new Intent(LoginActivity.this, MainActivity.class));
+                        finish();
                     }else{
-                        Toast.makeText(LoginActivity.this, "Login Error", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(LoginActivity.this, "Login Error",
+                                Toast.LENGTH_SHORT).show();
                         try {
                             Log.e("TAGERROR", response.errorBody().string());
                         } catch (IOException e) {
@@ -84,7 +94,9 @@ public class LoginActivity extends AppCompatActivity {
 
                 @Override
                 public void onFailure(Call<UsersResponse> call, Throwable t) {
-
+                    Toast.makeText(LoginActivity.this, "Login Error",
+                            Toast.LENGTH_SHORT).show();
+                    Log.e("TAGERROR", t.getLocalizedMessage());
                 }
             });
         }
