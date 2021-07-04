@@ -28,6 +28,7 @@ public class PrefsHelper {
     // untuk kebutuhan eksekusi data nantinya
     private String KEYLOGIN = "LOGINCHECK";
     private String KEYUSERNAME = "USERNAME";
+    private String KEYUSERID = "KEYUSERID";
 
     public boolean getStatusLogin(){
         return prefsHelp.getBoolean(KEYLOGIN, false);
@@ -46,5 +47,15 @@ public class PrefsHelper {
         SharedPreferences.Editor editor = prefsHelp.edit();
         editor.putString(KEYUSERNAME, username);
         editor.apply();
+    }
+
+    public int getUID(){
+        return prefsHelp.getInt(KEYUSERID, 0);
+    }
+
+    public void setUID(int idx){
+        SharedPreferences.Editor edit = prefsHelp.edit();
+        edit.putInt(KEYUSERID,idx);
+        edit.apply();
     }
 }

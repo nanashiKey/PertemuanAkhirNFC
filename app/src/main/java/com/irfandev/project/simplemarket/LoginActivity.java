@@ -79,6 +79,8 @@ public class LoginActivity extends AppCompatActivity {
                                 Toast.LENGTH_SHORT).show();
                         PrefsHelper.sharedInstance(LoginActivity.this).setStatusLogin(true);
                         PrefsHelper.sharedInstance(LoginActivity.this).setUsername(uname);
+                        PrefsHelper.sharedInstance(LoginActivity.this)
+                                .setUID(response.body().data.get(0).id);
                         startActivity(new Intent(LoginActivity.this, MainActivity.class));
                         finish();
                     }else{

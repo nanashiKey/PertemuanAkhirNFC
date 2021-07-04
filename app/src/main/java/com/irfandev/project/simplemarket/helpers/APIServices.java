@@ -32,4 +32,18 @@ public interface APIServices {
 
     @GET("getallbarang")
     public Call<BarangResponse> getAllBarang();
+
+    @FormUrlEncoded
+    @POST("beli")
+    public Call<DefaultResponse> beliBarang(
+            @Field("userid") int userid,
+            @Field("barangid") int barangid);
+
+    @FormUrlEncoded
+    @POST("uploadbarang")
+    public Call<DefaultResponse> uploadBarang(
+            @Field("namabarang") String namabarang,
+            @Field("hargabarang") long hargabarang,
+            @Field("stock") int stock);
+
 }

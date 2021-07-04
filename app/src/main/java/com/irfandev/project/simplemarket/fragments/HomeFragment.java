@@ -1,10 +1,14 @@
 package com.irfandev.project.simplemarket.fragments;
 
+import android.app.Dialog;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.WindowManager;
+import android.widget.Button;
+import android.widget.EditText;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -20,8 +24,10 @@ import com.irfandev.project.simplemarket.helpers.APIServices;
 import com.irfandev.project.simplemarket.helpers.Const;
 import com.irfandev.project.simplemarket.models.Barang;
 import com.irfandev.project.simplemarket.models.BarangResponse;
+import com.irfandev.project.simplemarket.models.DefaultResponse;
 
 import java.io.IOException;
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 
 import retrofit2.Call;
@@ -66,7 +72,13 @@ public class HomeFragment extends Fragment {
             public void onResponse(Call<BarangResponse> call, Response<BarangResponse> response) {
                 if(response.isSuccessful()){
                     ArrayList<Barang> barangs = response.body().data;
-                    barangAdapter = new BarangAdapter(getActivity().getApplicationContext(), barangs);
+                    ArrayList<Barang> barangs1 = new ArrayList<>();
+                    for(int pos = 0; pos < barangs.size(); pos++){
+                        if(barangs.get(pos).stock != 0){
+                            barangs1.add(barangs.get(pos));
+                        }
+                    }
+                    barangAdapter = new BarangAdapter(getActivity(), barangs1);
                     rcView.setAdapter(barangAdapter);
                 }else{
                     Toast.makeText(getActivity().getApplicationContext(), "item gagal di load", Toast.LENGTH_SHORT).show();
@@ -84,5 +96,78 @@ public class HomeFragment extends Fragment {
                 Toast.makeText(getActivity().getApplicationContext(), "item gagal di load", Toast.LENGTH_SHORT).show();
             }
         });
+
+        fab.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                uploadBarang();
+            }
+        });
+    }
+
+    private void uploadBarang(){
+        final Dialog dialogUpload = new Dialog(getActivity());
+        dialogUpload.setContentView(R.layout.pop_uploadbarang);
+        dialogUpload.setCancelable(false);
+        dialogUpload.getWindow().setLayout(WindowManager.LayoutParams.MATCH_PARENT,
+                WindowManager.LayoutParams.WRAP_CONTENT);
+        final EditText etNamaBarang, etHargaBarang, etStock;
+        Button btnUpload, btnCancel;
+        etNamaBarang = dialogUpload.findViewById(R.id.etNamaBarang);
+        etHargaBarang = dialogUpload.findViewById(R.id.etHargaBarang);
+        etStock = dialogUpload.findViewById(R.id.etStock);
+        btnUpload = dialogUpload.findViewById(R.id.btnUploadB);
+        btnCancel = dialogUpload.findViewById(R.id.btnCancel);
+
+        btnUpload.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                String namaBarang = etNamaBarang.getText().toString();
+                String hargaBarang = etHargaBarang.getText().toString();
+                String stockBarang = etStock.getText().toString();
+                if(namaBarang.equals("") || hargaBarang.equals("") || stockBarang.equals("")){
+                    Toast.makeText(getActivity().getApplicationContext(), "silahkan isi kolom kosong", Toast.LENGTH_SHORT).show();
+                }else{
+                    Retrofit retrofit = new Retrofit.Builder()
+                            .baseUrl(Const.BASEURL)
+                            .addConverterFactory(GsonConverterFactory.create())
+                            .build();
+                    APIServices apiServicess = retrofit.create(APIServices.class);
+                    apiServicess.uploadBarang(namaBarang, Long.parseLong(hargaBarang), Integer.parseInt(stockBarang))
+                            .enqueue(new Callback<DefaultResponse>() {
+                                @Override
+                                public void onResponse(Call<DefaultResponse> call, Response<DefaultResponse> response) {
+                                    if(response.isSuccessful()){
+                                        Toast.makeText(getActivity().getApplicationContext(),
+                                                response.body().message, Toast.LENGTH_SHORT).show();
+                                        dialogUpload.dismiss();
+                                        getActivity().startActivity(getActivity().getIntent());
+                                        getActivity().finish();
+                                        getActivity().overridePendingTransition(0,0);
+                                    }else{
+                                        Toast.makeText(getContext().getApplicationContext(), "barang gagal diupload", Toast.LENGTH_SHORT).show();
+                                        try {
+                                            Log.e("TAGERROR", response.errorBody().string());
+                                        } catch (IOException e) {
+                                            e.printStackTrace();
+                                        }
+                                    }
+                                }
+
+                                @Override
+                                public void onFailure(Call<DefaultResponse> call, Throwable t) {
+                                        Log.e("TAGERROR", t.getLocalizedMessage());
+                                }
+                            });
+                }
+            }
+        });
+        btnCancel.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                dialogUpload.dismiss();
+            }
+        });
+        dialogUpload.show();
     }
 }
